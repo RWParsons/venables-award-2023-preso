@@ -1,0 +1,296 @@
+---
+title: "`{predictNMB}`"
+author: "Rex Parsons"
+format: 
+  revealjs:
+    theme: league
+    embed-resources: true
+    output-file: "index"
+include-in-header: 
+  text: |
+    <style>
+      .custom-small table {
+        font-size: .7em
+      }
+    </style>
+---
+
+::: columns
+::: {.column width="40%"}
+predictNMB Team:
+
+-   Rex Parsons
+-   Adrian Barnett
+-   Robin Blythe
+-   Steven McPhail^(Supervisor)^
+-   Susanna Cramb^(Supervisor)^
+:::
+
+::: {.column width="50%"}
+![](www/predictNMB-team.jpg){.absolute height="550" right="200"}
+:::
+:::
+
+## 
+
+![](www/ropensci.png){.absolute height="300"}
+<br>
+<br>
+<br>
+<br>
+
+
+- Adam Sparks
+- Tinula Kariyawasam
+- Emi Tanaka
+
+
+# What is a clinical Decision Support System?
+
+## What is a clinical Decision Support System?
+
+![](www/what-is-a-cdss/cdss-diagram.png){.absolute left="350" height="500"}
+
+
+## What is a clinical prediction model?
+
+#### Diagnostic
+
+![](www/what-is-a-cdss/diagnostic-test-covid.png)
+
+## What is a clinical prediction model?
+
+#### Prognostic {.incremental}
+
+![](www/what-is-a-cdss/prognostic-crystal-ball.jpg)
+
+## What is a clinical prediction model?
+
+#### Prognostic {.incremental}
+
+![](www/what-is-a-cdss/prognostic-crystal-ball-mi.jpg)
+
+# Why we should we evaluate in terms of costs
+
+## Why we should we evaluate in terms of costs {.smaller}
+
+![](www/predictNMB/leaky-pipe.PNG)
+
+
+## Why we should we evaluate in terms of costs {.smaller}
+
+![](www/predictNMB/continuum-0.png)
+
+## Why we should we evaluate in terms of costs {.smaller}
+
+
+![](www/predictNMB/continuum-1.png)
+
+## Why we should we evaluate in terms of costs {.smaller}
+
+
+![](www/predictNMB/continuum-2.png)
+
+## Why we should we evaluate in terms of costs {.smaller}
+
+
+![](www/predictNMB/continuum-3.png)
+
+
+## Why we should use `{predictNMB}` {.smaller}
+
+`{predictNMB}`
+
+-   User provides inputs for setting & intervention (w/ uncertainty)
+-   Simulates & evaluates clinical prediction models within CDSS
+-   Estimates patient benefit and healthcare costs
+
+
+# DEMO
+
+
+##
+
+
+```{r}
+#| echo: true
+# install.packages("predictNMB")
+library(predictNMB)
+library(ggplot2)
+library(parallel)
+```
+
+
+## Example problem and inputs required - inpatient falls {.smaller}
+
+- Falls leads to about 0.04 lost Quality-Adjusted Life Years (QALYs)
+  (Latimer et al. 2013) and has an approximate beta distribution of:
+  $$\mathrm{B}(\alpha = 2.95, \beta = 32.25)$$  
+
+- There are also additional healthcare costs of about \$6669 (Morello et
+  al. 2015) and follows an approximate gamma distribution of:
+  $$\Gamma (\alpha = 22.05, \beta = 0.0033) $$
+
+- Fall prevention education…
+
+  - has a fixed, known cost of \$77.3 per patient (Hill et al. 2015)
+  - reduces probability of fall by 45% (Haines et al. 2011) - the log
+    hazard ratio follows an approximate normal distribution of:
+    $$\mathcal{N}(\mu = -0.844, \sigma = 0.304) $$
+    
+
+## Example problem and inputs required - inpatient falls {.smaller}
+
+- The willingness-to-pay (WTP) for us is \$28033 AUD
+
+- Current practice: Everyone gets the fall prevention intervention
+  (treat-all approach).
+
+::: custom-small
+
+| Input                     | Distribution                                         | R code                                         |
+|---------------------------|------------------------------------------------------|------------------------------------------------|
+| QALYs lost                | $$\mathrm{B}(\alpha = 2.95, \beta = 32.25)$$         | `rbeta(n = 1, shape1 = 2.95, shape2 = 32.25)`   |
+| Healthcare costs          | $$\Gamma (\alpha = 22.05, \beta = 0.0033) $$         | `rgamma(n = 1, shape = 22.05, rate = 0.0033)`  |
+| Treatment effect (hazard) | $$\exp(\mathcal{N}(\mu = -0.844, \sigma = 0.304)) $$ | `exp(rnorm(n = 1, mean = -0.844, sd = 0.304))` |
+| Treatment cost            | \$77.30                                              | \-                                             |
+| WTP                       | \$28033                                              | \-                                             |
+
+:::
+
+::: footer
+Calculations and code for using details in paper cited papers above is
+described in (Parsons et al. 2023). We used `{fitdistrplus}` but you can
+also use a shiny app by Nicole White and Robin Blythe: `ShinyPrior`
+(White and Blythe 2023).
+:::
+
+## Objectives/Questions {.smaller}
+
+- We have a prediction model which has an AUC of about 0.8 and we want
+  to know whether it’ll be worthwhile implementing it within a CDSS to
+  reduce healthcare costs (giving people that are unlikely to fall the
+  intervention at \$77.3 a pop!)
+
+- We are currently in a geriatric ward where the fall rate is about 0.1
+  (1 in 10 admitted patients have a fall) but are also interested in
+  implementing the same model in the acute care ward (fall rate = 0.03).
+  Would we expect to make the same conclusion?
+
+- We think we can improve the performance of the model up to 0.95 with
+  some extra effort by the models - would this change our conclusion?
+
+
+## Making our samplers {.smaller}
+
+```{r}
+#| echo: true
+validation_sampler <- get_nmb_sampler(
+  outcome_cost = function()  rgamma(1, shape = 22.05, rate = 0.0033),
+  wtp = 28033,
+  qalys_lost = function() rbeta(1, shape1 = 2.95, shape2 = 32.25),
+  high_risk_group_treatment_effect = function() exp(rnorm(1, mean = -0.844, sd = 0.304)),
+  high_risk_group_treatment_cost = 77.3,
+  low_risk_group_treatment_effect = 0,
+  low_risk_group_treatment_cost = 0,
+  use_expected_values = FALSE
+)
+```
+
+## Making our samplers {.smaller}
+
+```{r}
+#| echo: true
+validation_sampler <- get_nmb_sampler(
+  outcome_cost = function()  rgamma(1, shape = 22.05, rate = 0.0033),
+  wtp = 28033,
+  qalys_lost = function() rbeta(1, shape1 = 2.95, shape2 = 32.25),
+  high_risk_group_treatment_effect = function() exp(rnorm(1, mean = -0.844, sd = 0.304)),
+  high_risk_group_treatment_cost = 77.3,
+  low_risk_group_treatment_effect = 0,
+  low_risk_group_treatment_cost = 0,
+  use_expected_values = FALSE
+)
+
+
+training_sampler <- get_nmb_sampler(
+  outcome_cost = function()  rgamma(1, shape = 22.05, rate = 0.0033),
+  wtp = 28033,
+  qalys_lost = function() rbeta(1, shape1 = 2.95, shape2 = 32.25),
+  high_risk_group_treatment_effect = function() exp(rnorm(1, mean = -0.844, sd = 0.304)),
+  high_risk_group_treatment_cost = 77.3,
+  low_risk_group_treatment_effect = 0,
+  low_risk_group_treatment_cost = 0,
+  use_expected_values = TRUE
+)
+```
+
+## Primary analyses
+
+### Running our simulation (primary use-case)
+
+``` r
+cl <- makeCluster(detectCores() - 1)
+
+primary_sim <- do_nmb_sim(
+  n_sims = 500,
+  n_valid = 10000,
+  sim_auc = 0.8,
+  event_rate = 0.1,
+  cutpoint_methods = c("all", "none", "youden", "value_optimising"),
+  fx_nmb_training = training_sampler,
+  fx_nmb_evaluation = validation_sampler,
+  show_progress = TRUE,
+  cl = cl
+)
+```
+
+```{r}
+if(!"primary_sim.rds" %in% list.files("data")) {
+  cl <- makeCluster(detectCores() - 1)
+
+  primary_sim <- do_nmb_sim(
+    n_sims = 500,
+    n_valid = 10000,
+    sim_auc = 0.8,
+    event_rate = 0.1,
+    cutpoint_methods = c("all", "none", "youden", "value_optimising"),
+    fx_nmb_training = training_sampler,
+    fx_nmb_evaluation = validation_sampler,
+    show_progress = TRUE,
+    cl = cl
+  )
+  saveRDS(primary_sim, file.path("data", "primary_sim.rds"))
+} else {
+  primary_sim <- readRDS(file.path("data", "primary_sim.rds"))
+}
+```
+
+## Interpreting the results
+
+```{r}
+#| echo: true
+summary(primary_sim)
+```
+## Interpreting the results
+
+
+```{r}
+#| echo: true
+autoplot(primary_sim) + theme_sim()
+```
+
+
+
+# `{predictNMB}`
+
+## `{predictNMB}` <a href='https://docs.ropensci.org/predictNMB/'><img src="www/predictNMB/logo.png" align="right" height="170"/></a>
+
+What is the expected health economic benefit of using a given (hypothetical) CDSS?
+
+[docs.ropensci.org/predictNMB/](https://docs.ropensci.org/predictNMB/)
+
+```{r, eval=F}
+install.packages("predictNMB")
+remotes::install_github("RWParsons/predictNMB")
+```
