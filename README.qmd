@@ -2,17 +2,15 @@
 format: gfm
 ---
 
-# predictNMB - R/Medicine 2023 Demo <a href='https://docs.ropensci.org/predictNMB/'><img src="www/predictNMB/logo.png" align="right" height="139"/></a>
+# predictNMB - Venables award runner-up 2023 <a href='https://docs.ropensci.org/predictNMB/'><img src="www/predictNMB/logo.png" align="right" height="139"/></a>
 
-This repository contains the content for my R-Medicine 2023 demo on `{predictNMB}`.
+This repository contains the content for my SSA talk on `{predictNMB}` (24th of August, 2023).
 
 ## Presentation
 
-[Presentation slides](https://rwparsons.github.io/rmed2023-predictNMB)
+[Presentation slides](https://rwparsons.github.io/venables-award-2023-preso/)
 
-The code used to make the presentation is in `'predictNMB-intro-preso.qmd'`.
-
-The code for the demo is in `'./demo-code/'`
+The code used to make the presentation is in `'predictNMB-venables-award-preso.qmd'`.
 
 ## Resources
 
