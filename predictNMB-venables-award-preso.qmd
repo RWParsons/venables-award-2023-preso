@@ -123,6 +123,8 @@ library(parallel)
 
 ## Example problem and inputs required - inpatient falls {.smaller}
 
+::: {style="font-size: 70%;"}
+
 - Falls leads to about 0.04 lost Quality-Adjusted Life Years (QALYs)
   (Latimer et al. 2013) and has an approximate beta distribution of:
   $$\mathrm{B}(\alpha = 2.95, \beta = 32.25)$$  
@@ -138,6 +140,7 @@ library(parallel)
     hazard ratio follows an approximate normal distribution of:
     $$\mathcal{N}(\mu = -0.844, \sigma = 0.304) $$
     
+:::
 
 ## Example problem and inputs required - inpatient falls {.smaller}
 
@@ -270,27 +273,162 @@ if(!"primary_sim.rds" %in% list.files("data")) {
 
 ```{r}
 #| echo: true
+#| fig-align: center
 summary(primary_sim)
 ```
+
 ## Interpreting the results
+
+```{r}
+#| echo: true
+#| fig-align: center
+autoplot(primary_sim) + theme_sim()
+```
+
+## Interpreting the results
+
+```{r}
+#| echo: true
+#| fig-align: center
+autoplot(primary_sim, what = "cutpoints") + theme_sim()
+```
+
+## Interpreting the results
+
+```{r}
+#| echo: true
+#| fig-align: center
+autoplot(primary_sim, what = "inb", inb_ref_col = "all") + theme_sim()
+```
+
+## Interpreting the results
+
+```{r}
+#| echo: true
+#| fig-align: center
+autoplot(primary_sim, what = "qalys") + theme_sim()
+```
+
+## Interpreting the results
+
+```{r}
+#| echo: true
+#| fig-align: center
+ce_plot(primary_sim, ref_col = "all", add_prop_ce = TRUE)
+```
+
+## Acute care setting
+
+``` r
+cl <- makeCluster(detectCores() - 1)
+
+primary_sim <- do_nmb_sim(
+  n_sims = 500,
+  n_valid = 10000,
+  sim_auc = 0.8,
+  event_rate = 0.1,
+  cutpoint_methods = c("all", "none", "youden", "value_optimising"),
+  fx_nmb_training = training_sampler,
+  fx_nmb_evaluation = validation_sampler,
+  show_progress = TRUE,
+  cl = cl
+)
+```
+
+```{r}
+if(!"acute_care_sim.rds" %in% list.files("data")) {
+  cl <- makeCluster(detectCores() - 1)
+
+  acute_care_sim <- do_nmb_sim(
+    n_sims = 500,
+    n_valid = 10000,
+    sim_auc = 0.8,
+    event_rate = 0.03,
+    cutpoint_methods = c("all", "none", "youden", "value_optimising"),
+    fx_nmb_training = training_sampler,
+    fx_nmb_evaluation = validation_sampler,
+    show_progress = TRUE,
+    cl = cl
+  )
+  saveRDS(acute_care_sim, file.path("data", "acute_care_sim.rds"))
+} else {
+  acute_care_sim <- readRDS(file.path("data", "acute_care_sim.rds"))
+}
+```
+
+## Interpreting the results - acute care setting
+
+```{r}
+#| echo: true
+#| fig-align: center
+autoplot(acute_care_sim) + theme_sim()
+```
+
+## Interpreting the results - acute care setting
+
+```{r}
+#| echo: true
+#| fig-align: center
+ce_plot(acute_care_sim, ref_col = "all", add_prop_ce = TRUE)
+```
+
+## Bonus question - what happens when our inputs change?
+
+```{r, eval=FALSE}
+#| echo: true
+#| code-line-numbers: "2-7"
+screen_simulation_inputs(
+  n_sims = 500,
+  n_valid = 10000,
+  sim_auc = 0.8,
+  event_rate = 0.03,
+  fx_nmb_training = training_sampler,
+  fx_nmb_evaluation = validation_sampler,
+  cutpoint_methods = c("all", "none", "youden", "value_optimising"),
+  show_progress = TRUE,
+  cl = cl
+)
+```
+
+## What happens when the intervention cost changes?
+
+::: {style="font-size: 50%;"}
+see [RWParsons/rmed2023-predictNMB/demo-code/cost-of-treatment-screen.R](https://github.com/RWParsons/rmed2023-predictNMB/demo-code/cost-of-treatment-screen.R) for code to make `cost_screen` using `screen_simulation_inputs()`!
+:::
+
+```{r}
+cost_screen <- readRDS(gzcon(url("https://github.com/RWParsons/rmed2023-predictNMB/raw/main/demo-code/saved-sims/cost_screen.rds")))
+```
 
 
 ```{r}
 #| echo: true
-autoplot(primary_sim) + theme_sim()
+#| fig-align: center
+autoplot(cost_screen) +
+  scale_x_discrete(labels = function(x) gsub("[A-Z]\\-", "$", x))
 ```
 
 
+## `{predictNMB}` 
 
-# `{predictNMB}`
+![](www/predictNMB/logo.png){.absolute right="50" top="0" height="120"}
 
-## `{predictNMB}` <a href='https://docs.ropensci.org/predictNMB/'><img src="www/predictNMB/logo.png" align="right" height="170"/></a>
-
-What is the expected health economic benefit of using a given (hypothetical) CDSS?
 
 [docs.ropensci.org/predictNMB/](https://docs.ropensci.org/predictNMB/)
 
-```{r, eval=F}
-install.packages("predictNMB")
-remotes::install_github("RWParsons/predictNMB")
-```
+![](www/JOSS.png){.absolute right="50" top="120" height="100"}
+
+<https://www.doi.org/10.21105/joss.05328>
+
+![](www/twitter-logo.png){.absolute right="50" top="260" height="80"}
+<br>
+
+@RexParsons8
+
+![](www/github-logo.png){.absolute right="65" top="340" height="70"}
+
+[RWParsons/venables-award-2023-preso](https://github.com/RWParsons/venables-award-2023-preso)
+
+### Value-optimising cutpoint
+
+![](www/jamia-paper.PNG){.absolute left="0" top="500" height="200"}
