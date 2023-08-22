@@ -6,13 +6,6 @@ format:
     theme: league
     embed-resources: true
     output-file: "index"
-include-in-header: 
-  text: |
-    <style>
-      .custom-small table {
-        font-size: .7em
-      }
-    </style>
 ---
 
 ::: columns
@@ -426,16 +419,17 @@ autoplot(cost_screen) +
 
 [RWParsons/venables-award-2023-preso](https://github.com/RWParsons/venables-award-2023-preso)
 
+<br>
+
 ::: columns
 ::: {.column width="50%"}
-
-### Value-optimising cutpoint
+Value-optimising cutpoint
 
 ![](www/jamia-paper.PNG){.absolute left="0" top="500" height="200"}
 :::
 
 ::: {.column width="50%"}
-### predictNMB
+predictNMB
 
 ![](www/JOSS-paper.PNG){.absolute right="0" top="500" height="200"}
 :::
