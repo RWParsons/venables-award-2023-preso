@@ -411,24 +411,32 @@ autoplot(cost_screen) +
 
 ## `{predictNMB}` 
 
-![](www/predictNMB/logo.png){.absolute right="50" top="0" height="120"}
+![](www/predictNMB/logo.png){.absolute right="50" top="60" height="120"}
 
 
 [docs.ropensci.org/predictNMB/](https://docs.ropensci.org/predictNMB/)
 
-![](www/JOSS.png){.absolute right="50" top="120" height="100"}
 
-<https://www.doi.org/10.21105/joss.05328>
-
-![](www/twitter-logo.png){.absolute right="50" top="260" height="80"}
+![](www/twitter-logo.png){.absolute right="50" top="180" height="80"}
 <br>
 
 @RexParsons8
 
-![](www/github-logo.png){.absolute right="65" top="340" height="70"}
+![](www/github-logo.png){.absolute right="65" top="260" height="70"}
 
 [RWParsons/venables-award-2023-preso](https://github.com/RWParsons/venables-award-2023-preso)
+
+::: columns
+::: {.column width="50%"}
 
 ### Value-optimising cutpoint
 
 ![](www/jamia-paper.PNG){.absolute left="0" top="500" height="200"}
+:::
+
+::: {.column width="50%"}
+### predictNMB
+
+![](www/JOSS-paper.PNG){.absolute right="0" top="500" height="200"}
+:::
+:::
