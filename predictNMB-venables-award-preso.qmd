@@ -6,6 +6,13 @@ format:
     theme: league
     embed-resources: true
     output-file: "index"
+include-in-header: 
+  text: |
+    <style>
+      .custom-small table {
+        font-size: .7em
+      }
+    </style>
 ---
 
 ::: columns
