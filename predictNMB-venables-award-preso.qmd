@@ -79,22 +79,29 @@ predictNMB Team:
 
 ## Why we should we evaluate in terms of costs {.smaller}
 
-![](www/predictNMB/continuum-0.png)
+![](www/predictNMB/continuum-0.png){.absolute right="50" top="150"}
 
 ## Why we should we evaluate in terms of costs {.smaller}
 
 
-![](www/predictNMB/continuum-1.png)
+![](www/predictNMB/continuum-1.png){.absolute right="50" top="150"}
 
 ## Why we should we evaluate in terms of costs {.smaller}
 
 
-![](www/predictNMB/continuum-2.png)
+![](www/predictNMB/continuum-2.png){.absolute right="50" top="150"}
 
 ## Why we should we evaluate in terms of costs {.smaller}
 
 
-![](www/predictNMB/continuum-3.png)
+![](www/predictNMB/continuum-3.png){.absolute right="50" top="150"}
+
+
+## Why we should we evaluate in terms of costs {.smaller}
+
+![](www/predictNMB/continuum-extra.png){.absolute right="50" top="150"}
+
+<!-- <img src="www/predictNMB/continuum-extra.png" width="90%"/> -->
 
 
 ## Why we should use `{predictNMB}` {.smaller}
