@@ -322,11 +322,11 @@ ce_plot(primary_sim, ref_col = "all", add_prop_ce = TRUE)
 ``` r
 cl <- makeCluster(detectCores() - 1)
 
-primary_sim <- do_nmb_sim(
+acute_care_sim <- do_nmb_sim(
   n_sims = 500,
   n_valid = 10000,
   sim_auc = 0.8,
-  event_rate = 0.1,
+  event_rate = 0.03,
   cutpoint_methods = c("all", "none", "youden", "value_optimising"),
   fx_nmb_training = training_sampler,
   fx_nmb_evaluation = validation_sampler,
